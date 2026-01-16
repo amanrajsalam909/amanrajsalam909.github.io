@@ -787,9 +787,42 @@ function createLiveSection() {
     <div class="live-section">
       <div class="live-header">
         <div class="live-title">🔥 તાજા બનાવેલા Live Snacks</div>
-        <div class="live-timing">⏰ 8:00 AM - 11:00 AM</div>
       </div>
-      <p style="color: #fff; font-size: 10pt; margin-top: 2mm; position: relative; z-index: 1;">સવારે 8 થી 11 વાગ્યા સુધી તાજા બનાવેલા ફરસાણ | Fresh snacks made every morning from 8 AM to 11 AM</p>
+    </div>
+  `;
+}
+
+function createSeasonalSection(season) {
+  const seasonConfig = {
+    winter: {
+      icon: '❄️',
+      title: 'શિયાળાની ખાસ વાનગીઓ',
+      titleEn: 'Winter Special Items',
+      color: '#0288d1',
+      gradient: 'linear-gradient(135deg, #0288d1 0%, #01579b 100%)',
+      description: 'શિયાળાની મોસમની ખાસ મીઠાઈઓ અને નમકીન',
+      descriptionEn: 'Special sweets and snacks for winter season'
+    },
+    summer: {
+      icon: '☀️',
+      title: 'ઉનાળાની ખાસ વાનગીઓ',
+      titleEn: 'Summer Special Items',
+      color: '#ff6f00',
+      gradient: 'linear-gradient(135deg, #ff6f00 0%, #e65100 100%)',
+      description: 'ઉનાળાની મોસમની તાજગી આપતી વાનગીઓ',
+      descriptionEn: 'Refreshing items for summer season'
+    }
+  };
+  
+  const config = seasonConfig[season.toLowerCase()] || seasonConfig.winter;
+  
+  return `
+    <div class="live-section" style="background: ${config.gradient};">
+      <div class="live-header">
+        <div class="live-title">${config.icon} ${config.title}</div>
+        <div class="live-timing" style="background: #fff; color: ${config.color};">⏰ Available This Season</div>
+      </div>
+      <p style="color: #fff; font-size: 10pt; margin-top: 2mm; position: relative; z-index: 1;">${config.description} | ${config.descriptionEn}</p>
     </div>
   `;
 }
@@ -863,6 +896,16 @@ function renderMenu(data) {
   Object.keys(pages).forEach(pageName => {
     const categories = pages[pageName];
     const isLivePage = pageName.toLowerCase().includes('live') || pageName.toLowerCase().includes('લાઈવ');
+    const isSeasonalPage = pageName.toLowerCase().includes('winter') || pageName.toLowerCase().includes('summer') || 
+                          pageName.toLowerCase().includes('શિયાળા') || pageName.toLowerCase().includes('ઉનાળા');
+    
+    // Detect season
+    let season = null;
+    if (pageName.toLowerCase().includes('winter') || pageName.toLowerCase().includes('શિયાળા')) {
+      season = 'winter';
+    } else if (pageName.toLowerCase().includes('summer') || pageName.toLowerCase().includes('ઉનાળા')) {
+      season = 'summer';
+    }
     
     let pageNumber = 1;
     let currentPageDiv = null;
@@ -887,6 +930,11 @@ function renderMenu(data) {
       // Add live section only on first page
       if (isLivePage && pageNumber === 1) {
         currentPageDiv.innerHTML += createLiveSection();
+      }
+      
+      // Add seasonal section only on first page
+      if (isSeasonalPage && season && pageNumber === 1) {
+        currentPageDiv.innerHTML += createSeasonalSection(season);
       }
       
       itemsOnCurrentPage = 0;
@@ -967,34 +1015,40 @@ async function loadMenu() {
     // Define all API URLs
     const NAMKEEN_API = "https://script.google.com/macros/s/AKfycbwG2Ov5fIxwgl52_7ICHZZTO72llUuKoffgYq1Sdf4c5IUhq-SPnkaXVZn1Py01kY-w/exec";
     const SWEETS_API = "https://script.google.com/macros/s/AKfycbwdeQJ4izhs1-K69GzV2QXGdBO0JW9hMPJgAu5I2U7cOvijz9Vdf7Ca1Mj-TPV2XiF1/exec";
-    const LIVE_FOOD_API = "https://script.google.com/macros/s/AKfycbyNDS3bynra_c46QhJj1NwkF1Gk74k3UJ7VVrZE1uMo2AoHJo48KE4UwdtEH-6aPW4/exec";
+    const LIVE_FOOD_API = "https://script.google.com/macros/s/AKfycbxuAXUJjGaqicOouNEMqi38rbu3KZ4UvpN9HkeOAM58-XB5C2nt77v9Y1U8yqY1MsMS/exec";
+    const SEASONAL_FOOD_API = "https://script.google.com/macros/s/AKfycbwdJsDabASb9OwwEtcrhFcdy-HO1IzpRYssxL0r4w1qvaf3XAu72kA0uNzD_C6-AoHz/exec";
     
     console.log('Fetching from multiple APIs...');
     
-    // Fetch all data in parallel
-    const [namkeenResponse, sweetsResponse, liveFoodResponse] = await Promise.all([
+    // Fetch all data in parallel - ALWAYS include seasonal API
+    const [namkeenResponse, sweetsResponse, liveFoodResponse, seasonalResponse] = await Promise.all([
       fetch(NAMKEEN_API),
       fetch(SWEETS_API),
-      fetch(LIVE_FOOD_API)
+      fetch(LIVE_FOOD_API),
+      fetch(SEASONAL_FOOD_API)
     ]);
     
     // Parse all responses
     const namkeenData = await namkeenResponse.json();
     const sweetsData = await sweetsResponse.json();
     const liveFoodData = await liveFoodResponse.json();
+    const seasonalData = await seasonalResponse.json();
     
     console.log('Namkeen Data:', namkeenData);
     console.log('Sweets Data:', sweetsData);
     console.log('Live Food Data:', liveFoodData);
+    console.log('Seasonal Data:', seasonalData);
     
     // Extract arrays from response (handle different formats)
     const namkeenArray = Array.isArray(namkeenData) ? namkeenData : (namkeenData.data || namkeenData.values || []);
     const sweetsArray = Array.isArray(sweetsData) ? sweetsData : (sweetsData.data || sweetsData.values || []);
     const liveFoodArray = Array.isArray(liveFoodData) ? liveFoodData : (liveFoodData.data || liveFoodData.values || []);
+    const seasonalArray = Array.isArray(seasonalData) ? seasonalData : (seasonalData.data || seasonalData.values || []);
     
-    console.log('Namkeen Array:', namkeenArray);
-    console.log('Sweets Array:', sweetsArray);
-    console.log('Live Food Array:', liveFoodArray);
+    console.log('Namkeen Array:', namkeenArray.length, 'items');
+    console.log('Sweets Array:', sweetsArray.length, 'items');
+    console.log('Live Food Array:', liveFoodArray.length, 'items');
+    console.log('Seasonal Array:', seasonalArray.length, 'items');
     
     // Process Namkeen items
     const namkeenItems = namkeenArray.map(row => ({
@@ -1024,19 +1078,51 @@ async function loadMenu() {
       nameEn: row.nameEn || '',
       description: row.description || '',
       price: row.price || '',
-      category: row.category || 'Other',
-      page: row.page || 'લાઈવ ફરસાણ',
-      image: row.image || ''
-    })).filter(item => item.name);
+      category: row.category || 'તાજા બનાવેલા લાઈવ ફરસાણ',
+      page: 'લાઈવ ફરસાણ (Live Snacks)',
+      image: row.image || '',
+      available: row.available || 'Yes'
+    })).filter(item => item.name && item.available.toLowerCase() === 'yes');
+    
+    // Process Seasonal items - Handle 'name ' with space
+    const seasonalItems = seasonalArray.map(row => {
+      // Handle both 'name' and 'name ' (with space) keys
+      const itemName = row.name || row['name '] || '';
+      
+      return {
+        name: itemName.trim(),
+        nameEn: row.nameEn || '',
+        description: row.description || '',
+        price: row.price || '',
+        category: row.category || 'શિયાળાની ખાસ વાનગીઓ',
+        page: row.page || 'શિયાળાની ખાસ વાનગીઓ (Winter Special)',
+        image: row.image || '',
+        season: row.season || 'winter',
+        available: row.available || 'yes'
+      };
+    }).filter(item => {
+      const isAvailable = item.available && item.available.toLowerCase() === 'yes';
+      const hasName = item.name && item.name.length > 0;
+      
+      if (hasName && isAvailable) {
+        console.log('✓ Adding seasonal item:', item.name);
+        return true;
+      } else {
+        console.log('✗ Skipping seasonal item:', item);
+        return false;
+      }
+    });
     
     // Combine all items
-    const allMenuItems = [...namkeenItems, ...sweetsItems, ...liveFoodItems];
+    const allMenuItems = [...namkeenItems, ...sweetsItems, ...liveFoodItems, ...seasonalItems];
     
+    console.log('====== FINAL COUNTS ======');
     console.log('Total Menu Items:', allMenuItems.length);
     console.log('Namkeen Items:', namkeenItems.length);
     console.log('Sweets Items:', sweetsItems.length);
     console.log('Live Food Items:', liveFoodItems.length);
-    console.log('Combined Menu Items:', allMenuItems);
+    console.log('Seasonal Items:', seasonalItems.length);
+    console.log('==========================');
     
     if (allMenuItems.length === 0) {
       throw new Error('No valid menu items found in any sheet');
