@@ -696,16 +696,13 @@
             <div class="contact-item">
                 <strong>ફોન | Phone:</strong> +919712404744<br>
                 <strong>વ્હોટ્સએપ | WhatsApp:</strong> +919712404744<br>
-                <strong>ઈમેલ | Email:</strong> info@jayantibhaimavavala.com
             </div>
         </div>
 
         <div class="contact-section">
             <h3>🕐 સમય | Timing</h3>
             <div class="contact-item">
-                <strong>સોમવાર - શનિવાર | Monday - Saturday:</strong> 9:00 AM - 9:00 PM<br>
-                <strong>રવિવાર | Sunday:</strong> 9:00 AM - 10:00 PM<br>
-        
+                <strong>સોમવાર - રવિવાર | Monday - Sunday:</strong> 8:00 AM - 2:30 PM, 4:00 PM - 10:00 PM<br>
             </div>
         </div>
 
@@ -786,7 +783,7 @@ function createLiveSection() {
   return `
     <div class="live-section">
       <div class="live-header">
-        <div class="live-title">🔥 તાજા બનાવેલા Live Snacks</div>
+        <div class="live-title">🔥 તાજા બનાવેલા Live Farsan</div>
       </div>
     </div>
   `;
@@ -1057,7 +1054,7 @@ async function loadMenu() {
       description: row.description || '',
       price: row.price || '',
       category: row.category || 'Other',
-      page: row.page || 'Namkeen (બધા નમકીન શુદ્ધ મગફળીના તેલનો ઉપયોગ કરીને બનાવવામાં આવે છે.)',
+      page: row.page || 'Farsan (ફરસાણ)',
       image: row.image || ''
     })).filter(item => item.name);
     
@@ -1079,7 +1076,7 @@ async function loadMenu() {
       description: row.description || '',
       price: row.price || '',
       category: row.category || 'તાજા બનાવેલા લાઈવ ફરસાણ',
-      page: 'લાઈવ ફરસાણ (Live Snacks)',
+      page: 'લાઈવ ફરસાણ (Live Farsan)',
       image: row.image || '',
       available: row.available || 'Yes'
     })).filter(item => item.name && item.available.toLowerCase() === 'yes');
